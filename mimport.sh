@@ -20,7 +20,7 @@ video_prefix=$4
 shopt -s nocasematch
 
 images="jpeg|jpg"
-videos="mp4"
+videos="mp4|mpg|wmv|avi"
 
 RED='\033[1;31m'
 GREEN='\033[1;32m'
@@ -82,10 +82,9 @@ function process_files() {
       fi
       files=$((files+1))
       pct=$(printf "% 4.0f" $((files * 100 / total_files)))
-      echo -ne "\r[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} "
+      echo -e "[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} "
     fi
   done
-  echo
 }
 
 total_files=$(find $src -type f -print | count_files)
