@@ -30,7 +30,7 @@ NC='\033[0m'
 function count_files() {
   total_files=0
   while read p; do
-    filename="$(basename $p)"
+    filename=$(basename "$p")
     extension="${filename##*.}"
     is_media_file="false"
     if [[ "$extension" =~ $images ]]; then
@@ -48,7 +48,7 @@ function process_files() {
   pct=0
   files=0
   while read p; do
-    filename="$(basename $p)"
+    filename=$(basename "$p")
     extension="${filename##*.}"
     is_media_file="false"
     if [[ "$extension" =~ $images ]]; then
