@@ -5,11 +5,13 @@ command -v exif >/dev/null 2>&1 || { echo >&2 "[exif] is required, but not insta
 command -v ffprobe >/dev/null 2>&1 || { echo >&2 "[ffprobe] is required, but not installed.  Aborting."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo >&2 "[rsync] is required, but not installed.  Aborting."; exit 1; }
 command -v printf >/dev/null 2>&1 || { echo >&2 "[printf] is required, but not installed.  Aborting."; exit 1; }
+command -v date >/dev/null 2>&1 || { echo >&2 "[date] is required, but not installed.  Aborting."; exit 1; }
 
 RED='\033[1;31m'
 GREEN='\033[1;32m'
 BLUE='\033[1;34m'
 NC='\033[0m'
+CLREOL=$'\x1B[K'
 
 function usage() {
   echo "Expected arguments are missing: -d|-k SRC_PATH DEST_PATH IMAGE_PREFIX VIDEO_PREFIX"
@@ -72,19 +74,19 @@ function process_files() {
     extension="${filename##*.}"
     is_media_file="false"
     if [[ "$extension" =~ $images ]]; then
-      dt=$(exif --tag=DateTimeDigitized --no-fixup "$p" | grep -i value | sed 's/[^0-9]//g')
+      dt=$(exif --tag=DateTimeDigitized --no-fixup "$p" 2>> mimport-errors.log | grep -i value | sed 's/[^0-9]//g')
       prefix=$image_prefix
       color=$GREEN
       is_media_file="true"
     elif [[ "$extension" =~ $videos ]]; then
-      dt=$(ffprobe -v quiet -print_format flat -show_format "$p" | grep creation_time | cut -d= -f2- | sed 's/[^0-9]//g')
+      dt=$(ffprobe -v quiet -print_format flat -show_format "$p" 2>> mimport-errors.log | grep creation_time | cut -d= -f2- | sed 's/[^0-9]//g')
       prefix=$video_prefix
       color=$BLUE
       is_media_file="true"
     fi
     if [ "$is_media_file" == "true" ]; then
       if [ "${#dt}" -ne "14" ]; then
-        dtpath="UNKNOWN"
+        dtpath="_NOTDATED_"
       else
         dtpath="${dt:0:4}/${dt:4:2}/${dt:6:2}"
       fi
@@ -95,25 +97,34 @@ function process_files() {
       fi
       files=$((files+1))
       pct=$(printf "% 4.0f" $((files * 100 / total_files)))
-      echo -e "[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} "
+      echo -ne "\r[$pct % ]  ${color}$target${NC} << ${color}${filename:0:20}${NC} ${CLREOL}"
+      echo -e "[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} " >> mimport.log
       mkdir -p "$target" > /dev/null
       rsync --size-only "$p" "$target"
       exit_code=$?
       if [ "$exit_code" -ne 0 ]; then
         echo -e "${RED}ERROR: cannot rsync \"$p\" \"$target\"${NC}"
-        exit $exit_code
-      fi
-      if [ "$flag" == "-d" ]; then
-        rm "$p" > /dev/null
-        exit_code=$?
-        if [ "$exit_code" -ne 0 ]; then
-          echo -e "${RED}ERROR: cannot rm \"$p\"${NC}"
-          exit $exit_code
+        echo -e "${RED}ERROR: cannot rsync \"$p\" \"$target\"${NC}" >> mimport-errors.log
+        # exit $exit_code
+      else
+        if [ "$flag" == "-d" ]; then
+          rm "$p" > /dev/null
+          exit_code=$?
+          if [ "$exit_code" -ne 0 ]; then
+            echo -e "${RED}ERROR: cannot rm \"$p\"${NC}"
+            echo -e "${RED}ERROR: cannot rm \"$p\"${NC}" >> mimport-errors.log
+            # exit $exit_code
+          fi
         fi
       fi
     fi
   done
+  echo
 }
 
+echo "Started on $(date)" > mimport.log
+echo "Started on $(date)" > mimport-errors.log
 total_files=$(find $src -type f -print | count_files)
 find $src -type f -print | process_files
+echo "Finished on $(date)" >> mimport.log
+echo "Started on $(date)" >> mimport-errors.log
