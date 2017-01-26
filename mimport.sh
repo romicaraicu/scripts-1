@@ -6,26 +6,46 @@ command -v ffprobe >/dev/null 2>&1 || { echo >&2 "[ffprobe] is required, but not
 command -v rsync >/dev/null 2>&1 || { echo >&2 "[rsync] is required, but not installed.  Aborting."; exit 1; }
 command -v printf >/dev/null 2>&1 || { echo >&2 "[printf] is required, but not installed.  Aborting."; exit 1; }
 
-if [[ "$#" -ne 4 ]]; then
-  echo "Expected arguments are missing: SRC_PATH DEST_PATH IMAGE_PREFIX VIDEO_PREFIX"
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+NC='\033[0m'
+
+function usage() {
+  echo "Expected arguments are missing: -d|-k SRC_PATH DEST_PATH IMAGE_PREFIX VIDEO_PREFIX"
+  echo "    -k    - keeps source files after copying it to destination"
+  echo "    -d    - deletes source files after copying it to destination"
+}
+
+if [[ "$#" -ne 5 ]]; then
+  usage
   exit 1
 fi
 
-src=$1
-dst=$2
-image_prefix=$3
-video_prefix=$4
+flag=$1
+src=$2
+dst=$3
+image_prefix=$4
+video_prefix=$5
+
+if [ "$flag" != "-d" ]; then
+  if [ "$flag" != "-k" ]; then
+    echo -e "${RED}ERROR: First argument must be either -k or -d${NC}"
+    usage
+    exit 1
+  fi
+fi
+
+if [ ! -d "$src" ]; then
+  echo -e "${RED}ERROR: source folder does not exist${NC}"
+  exit 1
+fi
 
 # ignore case for regex expressions
 shopt -s nocasematch
 
 images="jpeg|jpg"
-videos="mp4|mpg|wmv|avi"
-
-RED='\033[1;31m'
-GREEN='\033[1;32m'
-BLUE='\033[1;34m'
-NC='\033[0m'
+videos="mp4|mpg|wmv|avi|lrv|mov"
 
 function count_files() {
   total_files=0
@@ -73,6 +93,9 @@ function process_files() {
       else
         target="${dst%/}/${prefix// }/$dtpath/"
       fi
+      files=$((files+1))
+      pct=$(printf "% 4.0f" $((files * 100 / total_files)))
+      echo -e "[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} "
       mkdir -p "$target" > /dev/null
       rsync --size-only "$p" "$target"
       exit_code=$?
@@ -80,9 +103,14 @@ function process_files() {
         echo -e "${RED}ERROR: cannot rsync \"$p\" \"$target\"${NC}"
         exit $exit_code
       fi
-      files=$((files+1))
-      pct=$(printf "% 4.0f" $((files * 100 / total_files)))
-      echo -e "[$pct % ]  ${color}$filename${NC} >> ${color}$target${NC} "
+      if [ "$flag" == "-d" ]; then
+        rm "$p" > /dev/null
+        exit_code=$?
+        if [ "$exit_code" -ne 0 ]; then
+          echo -e "${RED}ERROR: cannot rm \"$p\"${NC}"
+          exit $exit_code
+        fi
+      fi
     fi
   done
 }
