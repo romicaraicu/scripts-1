@@ -15,3 +15,18 @@ Supported formats:
 > I was always after keeping my media organized in a simple way like that, but
 > could not find simple tool that would work all the time in different
 > situations. This script is as simple as it just might get.
+
+## Synchronizing Git repositories
+
+```{.bash}
+cat repos.txt | scripts/git/sync-repos.sh git@github.com:kuznero
+```
+
+Where `repos.txt` contains list of repositories to synchronize, i.e. to clone if
+it has not been cloned yet or pull recent changes - otherwise. Here is how
+`repos.txt` might look like:
+
+```{.plain}
+dotfiles
+scripts
+```
