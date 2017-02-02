@@ -1,35 +1,25 @@
 # Scripts
 
-Various scripts to make my life easier :)
+## Docker
 
-## Media file importer
+* [docker-service-create-wait](/kuznero/scripts/blob/master/docker/docker-service-create-wait.md)
+* [docker-service-update-wait](/kuznero/scripts/blob/master/docker/docker-service-update-wait.md)
+* [docker-service-ps-notrunning](/kuznero/scripts/blob/master/docker/docker-service-ps-notrunning.md)
+* [docker-service-ps](/kuznero/scripts/blob/master/docker/docker-service-ps.md)
+* [full-cluster-cleanup](/kuznero/scripts/blob/master/docker/full-cluster-cleanup.md)
 
-`mimport.sh` script is helping to import media files into a folder
-structure with following pattern: `$TARGET\(videos|photos)\YEAR\MONTH\DAY`.
+## Media
 
-Supported formats:
+* [Media files importer](/kuznero/scripts/blob/master/media/mimport.md)
 
-* Images: `jpeg`, `jpg`
-* Videos: `mp4`, `mpg`, `wmv`, `avi`, `lrv`, `mov`
+## Shell
 
-> I was always after keeping my media organized in a simple way like that, but
-> could not find simple tool that would work all the time in different
-> situations. This script is as simple as it just might get.
+* [File monitor](/kuznero/scripts/blob/master/shell/monitor.md)
 
-## Synchronizing Git repositories
+## Git
 
-```{.bash}
-cat repos.txt | scripts/git/sync-repos.sh git@github.com:kuznero
-```
+* [Synchronize Git repositories](/kuznero/scripts/blob/master/git/sync-repos.md)
 
-Where `repos.txt` contains list of repositories to synchronize, i.e. to clone if
-it has not been cloned yet or pull recent changes - otherwise. Here is how
-`repos.txt` might look like:
+## Ssh
 
-```{.plain}
-dotfiles
-scripts
-```
-
-> `sync-repos.sh` script will also try to `ssh-add` your current key if it will
-> detect that it is not yet active.
+* [Start SSH agent](/kuznero/scripts/blob/master/ssh/ssh-start.md)
