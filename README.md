@@ -30,3 +30,6 @@ it has not been cloned yet or pull recent changes - otherwise. Here is how
 dotfiles
 scripts
 ```
+
+> `sync-repos.sh` script will also try to `ssh-add` your current key if it will
+> detect that it is not yet active.
