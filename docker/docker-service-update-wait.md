@@ -195,6 +195,3 @@ SUCCESS
 
 In case of a failure script is producing non-zero result code which is what is
 typically getting detected by CI/CD setup.
-
-> There is a follow up post regarding `docker service create`
-> [here](/posts/ci/docker-service-create-wait.html).
