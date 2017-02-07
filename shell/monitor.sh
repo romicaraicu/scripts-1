@@ -9,18 +9,23 @@ IFS=',' read -r -a exts <<< "$1"
 delay=$2
 cmd=$3
 
-eval $cmd
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+NC='\033[0m'
 
-while true; do
-  inotifywait -q -r -e moved_to,moved_from ./ | while read path events file; do
+function run () {
+  eval $cmd
+}
 
-    for ext in "${exts[@]}"; do
-      if [[ $file =~ .$ext$ ]]; then
-        echo "$file has changed in $path, triggering command ..."
-        sleep $delay
-        eval $cmd
-      fi
-    done
+run
 
+inotifywait -q -r -m -e moved_to,moved_from ./ | while read path events file; do
+  for ext in "${exts[@]}"; do
+    if [[ $file =~ .$ext$ ]]; then
+      echo -e "${GREEN}$file${NC} has changed in ${BLUE}$path${NC}, triggering command ..."
+      sleep $delay
+      run
+    fi
   done
 done
