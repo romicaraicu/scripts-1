@@ -23,8 +23,8 @@ inotifywait -q -r -m -e moved_to,moved_from ./ | while read path events file; do
   for ext in "${exts[@]}"; do
     if [[ $file =~ .$ext$ ]]; then
       if [[ $(date +%s) > $(($dt + $delay)) ]]; then
-        run
         dt=$(date +%s)
+        run
       fi
     fi
   done
