@@ -13,7 +13,7 @@ delay=$2
 cmd=$3
 
 function run () {
-  eval $cmd
+  bash -c "eval $cmd"
 }
 
 run
