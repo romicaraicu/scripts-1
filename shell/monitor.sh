@@ -12,11 +12,22 @@ IFS=',' read -r -a exts <<< "$1"
 delay=$2
 cmd=$3
 
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
 function run () {
   clear
-  echo ":: Triggered on -> $(date) ::"
+  x=$(date -ud "$(date -u)" +'%s')
+  echo -e "${YELLOW}>> Triggered on -> $(date) <<${NC}"
   echo ""
   bash -c "eval $cmd"
+  echo -e "${YELLOW}>> Completed on -> $(date) <<${NC}"
+  y=$(date -ud "$(date -u)" +'%s')
+  s=$(($y-$x))
+  m=$(($s/60))
+  h=$(($s/60/60))
+  printf "${CYAN}>>     Duration -> %02d:%02d:%02d                     <<${NC}\n" $h $m $s
 }
 
 run
