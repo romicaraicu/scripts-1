@@ -22,6 +22,7 @@ function run () {
   echo -e "${YELLOW}>> Triggered on -> $(date) <<${NC}"
   echo ""
   bash -c "eval $cmd"
+  echo ""
   echo -e "${YELLOW}>> Completed on -> $(date) <<${NC}"
   y=$(date -ud "$(date -u)" +'%s')
   s=$(($y-$x))
