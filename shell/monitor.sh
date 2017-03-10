@@ -14,6 +14,8 @@ cmd=$3
 
 function run () {
   clear
+  echo ":: Triggered on -> $(date) ::"
+  echo ""
   bash -c "eval $cmd"
 }
 
