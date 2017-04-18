@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-command -v inotifywait >/dev/null 2>&1 || { echo >&2 "[inotifywait] is required, but not installed.  Aborting."; exit 1; }
 command -v date >/dev/null 2>&1 || { echo >&2 "[date] is required, but not installed.  Aborting."; exit 1; }
+command -v find >/dev/null 2>&1 || { echo >&2 "[find] is required, but not installed.  Aborting."; exit 1; }
+command -v stat >/dev/null 2>&1 || { echo >&2 "[stat] is required, but not installed.  Aborting."; exit 1; }
+command -v sort >/dev/null 2>&1 || { echo >&2 "[sort] is required, but not installed.  Aborting."; exit 1; }
+command -v head >/dev/null 2>&1 || { echo >&2 "[head] is required, but not installed.  Aborting."; exit 1; }
 
 if [[ "$#" -ne 3 ]]; then
   echo "Expected arguments are missing: EXTENSIONS DELAY COMMAND"
@@ -31,16 +34,20 @@ function run () {
   printf "${CYAN}>>     Duration -> %02d:%02d:%02d                     <<${NC}\n" $h $m $s
 }
 
-run
-dt=$(date +%s)
+last_changed="find ./ -type f \( "
+for ext in "${exts[@]}"; do
+  last_changed="$last_changed -iname \"*.$ext\" -o"
+done
+last_changed=${last_changed::-2}
+last_changed="$last_changed \) -exec stat -c \"%Y\" {} ';' | sort -r | head -n 1"
 
-inotifywait -q -r -m -e moved_to,moved_from ./ | while read path events file; do
-  for ext in "${exts[@]}"; do
-    if [[ $file =~ .$ext$ ]]; then
-      if [[ $(date +%s) > $(($dt + $delay)) ]]; then
-        dt=$(date +%s)
-        run
-      fi
-    fi
-  done
+t=0
+while true; do
+  x=$(eval $last_changed)
+  if [ -z "$x" ]; then x=0; fi
+  if [[ $x > $t ]]; then
+    t=$x
+    run
+  fi
+  sleep $delay
 done
