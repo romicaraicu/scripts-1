@@ -6,14 +6,15 @@ command -v stat >/dev/null 2>&1 || { echo >&2 "[stat] is required, but not insta
 command -v sort >/dev/null 2>&1 || { echo >&2 "[sort] is required, but not installed.  Aborting."; exit 1; }
 command -v head >/dev/null 2>&1 || { echo >&2 "[head] is required, but not installed.  Aborting."; exit 1; }
 
-if [[ "$#" -ne 3 ]]; then
-  echo "Expected arguments are missing: EXTENSIONS DELAY COMMAND"
+if [[ "$#" -ne 4 ]]; then
+  echo "Expected arguments are missing: EXTENSIONS IGNORE_FOLDERS DELAY COMMAND"
   exit 1
 fi
 
 IFS=',' read -r -a exts <<< "$1"
-delay=$2
-cmd=$3
+IFS=',' read -r -a igns <<< "$2"
+delay=$3
+cmd=$4
 
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
@@ -39,7 +40,11 @@ for ext in "${exts[@]}"; do
   last_changed="$last_changed -iname \"*.$ext\" -o"
 done
 last_changed=${last_changed::-2}
-last_changed="$last_changed \) -exec stat -c \"%Y\" {} ';' | sort -r | head -n 1"
+last_changed="$last_changed \)"
+for ign in "${igns[@]}"; do
+  last_changed="$last_changed -not -path \"./$ign/*\""
+done
+last_changed="$last_changed -exec stat -c \"%Y\" {} ';' | sort -r | head -n 1"
 
 t=0
 while true; do
