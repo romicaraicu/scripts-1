@@ -19,12 +19,14 @@ domain_name=$2
 IFS=',' read -r -a managers <<< "$3"
 IFS=',' read -r -a workers <<< "$4"
 
+root=$(dirname $0)
+
 function init_cluster () {
   server=$1
   ip=$2
   echo ""
   echo -e "Init cluster @ ${YELLOW}$server${NC}"
-  command=$(cat startup.sh | sed "s/advertise_ip=\$1/advertise_ip=\"$ip\"/" | base64 -w0)
+  command=$(cat $root/startup.sh | sed "s/advertise_ip=\$1/advertise_ip=\"$ip\"/" | base64 -w0)
   ssh -t $server "echo $command | base64 -d | sudo su"
 }
 

@@ -19,11 +19,13 @@ domain_name=$2
 IFS=',' read -r -a servers <<< "$3"
 IFS=',' read -r -a managers <<< "$4"
 
+root=$(dirname $0)
+
 function prepare_docker () {
   server=$1
   echo ""
   echo -e "${YELLOW}$server${NC}"
-  command=$(base64 -w0 prepare.sh)
+  command=$(base64 -w0 $root/prepare.sh)
   ssh -t $server "echo $command | base64 -d | sudo su"
 }
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-command -v base64 >/dev/null 2>&1 || { echo >&2 "[base64] is required, but not installed.  Aborting."; exit 1; }
-
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'

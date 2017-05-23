@@ -18,11 +18,13 @@ user_name=$1
 domain_name=$2
 IFS=',' read -r -a servers <<< "$3"
 
+root=$(dirname $0)
+
 function shutdown_node () {
   server=$1
   echo ""
   echo -e "${YELLOW}$server${NC}"
-  command=$(base64 -w0 shutdown.sh)
+  command=$(base64 -w0 $root/shutdown.sh)
   ssh -t $server "echo $command | base64 -d | sudo su"
 }
 
