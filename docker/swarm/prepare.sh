@@ -30,6 +30,7 @@ if [ -d "/var/run/docker/netns" ]; then
     for p in $(find /var/run/docker/netns/* -maxdepth 1 -print); do
       ln -s $p /var/run/netns
     done
+    echo ""
     ip netns list
     for p in $(find /var/run/docker/netns/* -maxdepth 1 -print); do
       ip netns del $(basename $p)
