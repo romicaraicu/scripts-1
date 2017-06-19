@@ -47,3 +47,10 @@ systemctl enable docker
 echo -n "Starting docker service ... "
 systemctl start docker
 echo "done."
+
+x=$(ls -la /var/run/docker.sock | wc -l)
+if [ "$x" == "1" ]; then
+  echo -n "Opening up /var/run/docker.sock"
+  chmod 0666 /var/run/docker.sock
+  echo "done."
+fi

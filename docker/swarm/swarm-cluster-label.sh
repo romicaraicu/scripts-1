@@ -10,7 +10,7 @@ if [[ "$#" -ne 2 ]]; then
   echo -e "Command also expects ${YELLOW}LABEL_SPEC${NC} to be supplied through pipe"
   echo ""
   echo "Example:"
-  echo -e "  echo 'host1!infra=on+rabbitmq-1=on,host2!app=on' | ./swarm-cluster-label.sh domain"
+  echo -e "  echo 'host1!infra=on+rabbitmq-1=on,host2!app=on' | ./swarm-cluster-label.sh domain host1"
   exit 1
 fi
 
