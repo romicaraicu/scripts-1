@@ -17,6 +17,7 @@ fi
 
 ADDRESS="${INPUT[0]}"
 CREDS="${INPUT[1]}"
+CURL_MAX_TIME=5
 
 function trim_quotes () {
   line=$1
@@ -26,7 +27,7 @@ function trim_quotes () {
   echo $line
 }
 
-result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
+result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
 rc=$?
 if [ ! "$rc" -eq "0" ]; then
   echo "Server seams to be offline"
@@ -38,16 +39,16 @@ NODES=($(echo $result | jq '.[] | .name'))
 failing_nodes=0
 for node in "${NODES[@]}"; do
   node=$(trim_quotes $node)
-  result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
+  result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
   rc=$?
   if [ ! "$rc" -eq "0" ]; then
     echo "Server seams to be offline"
     exit 1
   fi
   xs=($(echo $result | jq '.status, .reason'))
-  status=$(trim_quotes "${xs[0]}")
+  status="${xs[0]}"
   reason="${xs[@]:1}"
-  if [ "$status" != "ok" ]; then
+  if [ "$status" != "\"ok\"" ]; then
     echo "Node [$node] failing: $reason"
     failing_nodes=$((failing_nodes + 1))
   fi

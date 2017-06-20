@@ -19,8 +19,9 @@ fi
 
 ADDRESS="${INPUT[0]}"
 CREDS="${INPUT[1]}"
+CURL_MAX_TIME=5
 
-result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
+result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
 rc=$?
 if [ ! "$rc" -eq "0" ]; then
   echo "Server seams to be offline"
