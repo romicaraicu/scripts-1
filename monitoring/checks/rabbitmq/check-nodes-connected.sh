@@ -20,8 +20,15 @@ fi
 ADDRESS="${INPUT[0]}"
 CREDS="${INPUT[1]}"
 
+result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
+rc=$?
+if [ ! "$rc" -eq "0" ]; then
+  echo "Server seams to be offline"
+  exit 1
+fi
+
 ACTUAL=$( \
-  curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes" | \
+  echo $result | \
   jq '.[] | .name, .running' | \
   sed ':a;N;$!ba;s/\n/ /g' | \
   sed 's/true /true\n/g' | \

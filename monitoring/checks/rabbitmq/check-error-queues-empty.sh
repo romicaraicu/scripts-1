@@ -19,8 +19,15 @@ ADDRESS="${INPUT[0]}"
 CREDS="${INPUT[1]}"
 ERROR_QUEUES="${INPUT[2]}"
 
+result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/queues")
+rc=$?
+if [ ! "$rc" -eq "0" ]; then
+  echo "Server seams to be offline"
+  exit 1
+fi
+
 QUEUES=($( \
-  curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/queues" | \
+  echo $result | \
   jq '.[] | .name, .messages' | \
   sed ':a;N;$!ba;s/\n/ /g' | \
   sed -r 's/" ([0-9]+)/"=\1\n/g' | \

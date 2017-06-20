@@ -29,7 +29,13 @@ function trim_quotes () {
 
 failing_nodes=0
 for node in "${NODES[@]}"; do
-  xs=($(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node" | jq '.status, .reason'))
+  result=$(curl --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
+  rc=$?
+  if [ ! "$rc" -eq "0" ]; then
+    echo "Server seams to be offline"
+    exit 1
+  fi
+  xs=($(echo $result | jq '.status, .reason'))
   status=$(trim_quotes "${xs[0]}")
   reason="${xs[@]:1}"
   if [ "$status" != "ok" ]; then
