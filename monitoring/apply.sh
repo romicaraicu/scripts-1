@@ -8,15 +8,20 @@ if [[ "$#" -ne 2 ]]; then
   exit 1
 fi
 
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+NC='\033[0m'
+
 TARGET_HOST=$1
 RABBITMQ_CREDENTIALS=$2
 ROOT="$(dirname "$(readlink -f "$0")")"
 
 inputs=($(find "$ROOT/checks" -type f -iregex ".*\.input$"))
 offset=$((${#ROOT} + 8))
+echo ""
 for input in "${inputs[@]}"; do
-  echo -n "# ${input:$offset} ... "
+  echo -n -e "${RED}#${NC} ${input:$offset} ... "
   sed -i "s/127.0.0.1/$TARGET_HOST/" $input
   sed -i "s/guest:guest/$RABBITMQ_CREDENTIALS/" $input
-  echo "done."
+  echo -e "${GREEN}done${NC}"
 done
