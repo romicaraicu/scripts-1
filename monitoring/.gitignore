@@ -1,4 +1,5 @@
+lock
 checks-output
 failed-output
-lock
+warned-output
 passed-output
