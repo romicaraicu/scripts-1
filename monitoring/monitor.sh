@@ -70,7 +70,7 @@ if [ "$FLAG" == "-n" ]; then
 else
   $(run_checks)
   echo "<click>$ROOT/monitor.sh -n</click>"
-  echo "<tool>Failed: $failed; Passed: $passed</tool>"
+  echo "<tool>Failed: $failed; Warned: $warned; Passed: $passed</tool>"
   echo "<img>$ROOT/icons/$icon$IMAGE_SIZE.png</img>"
 fi
 ) 200> "$LOCK"
