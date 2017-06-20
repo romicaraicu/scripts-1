@@ -39,10 +39,12 @@ for queue in "${QUEUES[@]}"; do
   if [[ ! $queue =~ $IGNORE_QUEUES ]]; then
     IFS='=' read -r -a xs <<< "$queue"
     queue="${xs[0]}"
-    n="${xs[1]}"
-    if [ "$n" -eq "0" ]; then
-      echo "Queue [$queue] has no consumers"
-      errors=$(($errors + 1))
+    if [ "$queue" != "null" ]; then
+      n="${xs[1]}"
+      if [ "${n:-0}" -eq "0" ]; then
+        echo "Queue [$queue] has no consumers"
+        errors=$(($errors + 1))
+      fi
     fi
   fi
 done
