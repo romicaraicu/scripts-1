@@ -22,7 +22,7 @@ for line in "${lines[@]}"; do
   name="${xs[0]}"
   m="${xs[1]}"
   n="${xs[2]}"
-  if [ $n -ne $m ]; then
+  if [ "$n" -ne "$m" ]; then
     echo "$name ($m / $n)"
     $failing_services=$(($failing_services + 1))
   fi
