@@ -45,7 +45,7 @@ function run_checks () {
 output=$(cat $CHECKS_OUTPUT 2> /dev/null)
 passed=$(cat $PASSED_OUTPUT 2> /dev/null)
 failed=$(cat $FAILED_OUTPUT 2> /dev/null)
-warned=12 # $(cat $WARNED_OUTPUT 2> /dev/null)
+warned=$(cat $WARNED_OUTPUT 2> /dev/null)
 icon=$(if [ "$failed" -gt "0" ]; then echo "sick"; elif [ "$warned" -gt "0" ]; then echo "dizzy"; else echo "healthy"; fi)
 
 function xnotify () {
