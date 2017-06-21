@@ -27,7 +27,7 @@ function trim_quotes () {
   echo $line
 }
 
-result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
+result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $CREDS "$ADDRESS/api/nodes")
 rc=$?
 if [ ! "$rc" -eq "0" ]; then
   echo "Server seams to be offline"
@@ -39,7 +39,7 @@ NODES=($(echo $result | jq '.[] | .name'))
 failing_nodes=0
 for node in "${NODES[@]}"; do
   node=$(trim_quotes $node)
-  result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
+  result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
   rc=$?
   if [ ! "$rc" -eq "0" ]; then
     echo "Server seams to be offline"

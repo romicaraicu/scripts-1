@@ -22,7 +22,7 @@ CURL_MAX_TIME=5
 
 failing_nodes=0
 for node in "${NODES[@]}"; do
-  result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
+  result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
   rc=$?
   if [ ! "$rc" -eq "0" ]; then
     echo "Server seams to be offline"

@@ -20,7 +20,7 @@ CREDS="${INPUT[1]}"
 ERROR_QUEUES="${INPUT[2]}"
 CURL_MAX_TIME=5
 
-result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $CREDS "$ADDRESS/api/queues")
+result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $CREDS "$ADDRESS/api/queues")
 rc=$?
 if [ ! "$rc" -eq "0" ]; then
   echo "Server seams to be offline"

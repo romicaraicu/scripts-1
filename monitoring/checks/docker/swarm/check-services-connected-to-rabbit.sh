@@ -30,7 +30,7 @@ RABBITMQ_CREDS="${INPUT[2]}"
 FILTER=$(trim_quotes ${INPUT[3]})
 CURL_MAX_TIME=5
 
-result=$(curl --max-time $CURL_MAX_TIME --fail-early -sb -i -u $RABBITMQ_CREDS "$RABBITMQ_ADDRESS/api/connections")
+result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $RABBITMQ_CREDS "$RABBITMQ_ADDRESS/api/connections")
 rc=$?
 if [ ! "$rc" -eq "0" ]; then
   echo "Server seams to be offline"
