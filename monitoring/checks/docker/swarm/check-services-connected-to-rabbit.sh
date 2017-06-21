@@ -38,24 +38,33 @@ if [ ! "$rc" -eq "0" ]; then
 fi
 
 connections=($(echo $result | jq '.[] | .client_properties | .connection_name'))
-services=($(docker service ls | grep -v '^ID' | awk '{print $2"/"$4}'))
+
+if [ "${#connections}" -eq "0" ]; then
+  echo "No connections found"
+  exit 1
+fi
+
+services=($(docker service ls | grep -v '^ID' | awk '{print $2"/"$4}' | grep $FILTER))
+
+if [ "${#services}" -eq "0" ]; then
+  echo "No services found"
+  exit 1
+fi
 
 errors=0
 for service in "${services[@]}"; do
   IFS='/' read -r -a xs <<< "$service"
   name="${xs[0]}"
   n="${xs[2]}"
-  if [[ $name =~ $FILTER ]]; then
-    matching_connections=0
-    for connection in "${connections[@]}"; do
-      if [[ $connection =~ "\"$name" ]]; then
-        matching_connections=$(($matching_connections + 1))
-      fi
-    done
-    if [ "$matching_connections" -lt "$n" ]; then
-      echo "Not all instances of [$name] service can connect to RabbitMQ ($matching_connections / $n)"
-      errors=$(($errors + 1))
+  matching_connections=0
+  for connection in "${connections[@]}"; do
+    if [[ $connection =~ "\"$name" ]]; then
+      matching_connections=$(($matching_connections + 1))
     fi
+  done
+  if [ "$matching_connections" -lt "$n" ]; then
+    echo "Not all instances of [$name] service can connect to RabbitMQ ($matching_connections / $n)"
+    errors=$(($errors + 1))
   fi
 done
 

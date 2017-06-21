@@ -34,6 +34,13 @@ failed_checks=0
 warned_checks=0
 passed_checks=0
 
+function format_duration () {
+  duration=$1
+  min=$(($duration / 60))
+  sec=$(($duration % 60))
+  printf "  ${YELLOW}|${NC} ${CYAN}Took:${NC} ${YELLOW}%02d:%02d${NC} ${CYAN}sec${NC}\n" $min $sec
+}
+
 function format_output () {
   IFS='|' read -r -a output <<< "$1"
   for line in "${output[@]}"; do
@@ -45,20 +52,25 @@ echo ""
 checks=($(find "$ROOT/checks" -type f -iregex ".*\.sh$"))
 offset=$((${#ROOT} + 8))
 for check in "${checks[@]}"; do
+  SECONDS=0
   output=$($check)
   rc=$?
+  duration=$SECONDS
   output=$(echo "${output[0]}" | sed ':a;N;$!ba;s/\n/|/g')
   if [ "$rc" -eq "0" ]; then
     passed_checks=$(($passed_checks + 1))
     format_passed "${check:$offset}"
+    format_duration $duration
   elif [ "$rc" -eq "1" ]; then
     failed_checks=$(($failed_checks + 1))
     format_failed "${check:$offset}"
     format_output "$output"
+    format_duration $duration
   else
     warned_checks=$(($warned_checks + 1))
     format_warned "${check:$offset}"
     format_output "$output"
+    format_duration $duration
   fi
 done
 

@@ -14,6 +14,13 @@ WARNED_OUTPUT="$ROOT/warned-output"
 NOTIFY_TIME=$((5 * 1000))
 IMAGE_SIZE=24
 
+function print_timespan () {
+  duration=$1
+  min=$(($duration / 60))
+  sec=$(($duration % 60))
+  printf "%02d:%02d sec" $min $sec
+}
+
 function run_checks () {
   echo "" > $CHECKS_OUTPUT
   checks=($(find "$ROOT/checks" -type f -iregex ".*\.sh$"))
@@ -22,18 +29,20 @@ function run_checks () {
   warned_checks=0
   passed_checks=0
   for check in "${checks[@]}"; do
+    SECONDS=0
     echo "# ${check:$offset} ..." >> $CHECKS_OUTPUT
     $check >> $CHECKS_OUTPUT
     rc=$?
+    duration=$SECONDS
     if [ "$rc" -eq "0" ]; then
       passed_checks=$(($passed_checks + 1))
-      echo " >> PASSED" >> $CHECKS_OUTPUT
+      echo " >> PASSED, took `print_timespan $duration`" >> $CHECKS_OUTPUT
     elif [ "$rc" -eq "1" ]; then
       failed_checks=$(($failed_checks + 1))
-      echo " >> FAILED" >> $CHECKS_OUTPUT
+      echo " >> FAILED, took `print_timespan $duration`" >> $CHECKS_OUTPUT
     else
       warned_checks=$(($warned_checks + 1))
-      echo " >> WARNED" >> $CHECKS_OUTPUT
+      echo " >> WARNED, took `print_timespan $duration`" >> $CHECKS_OUTPUT
     fi
     echo "" >> $CHECKS_OUTPUT
   done

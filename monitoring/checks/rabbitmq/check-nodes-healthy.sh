@@ -36,6 +36,11 @@ fi
 
 NODES=($(echo $result | jq '.[] | .name'))
 
+if [ "${#NODES}" -eq "0" ]; then
+  echo "No nodes found"
+  exit 1
+fi
+
 failing_nodes=0
 for node in "${NODES[@]}"; do
   node=$(trim_quotes $node)

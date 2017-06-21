@@ -16,8 +16,14 @@ fi
 export DOCKER_HOST="${INPUT[0]}"
 
 failing_services=0
-lines=($(docker service ls | grep -v '^ID' | awk '{print $2"/"$4}'))
-for line in "${lines[@]}"; do
+services=($(docker service ls | grep -v '^ID' | awk '{print $2"/"$4}'))
+
+if [ "${#services}" -eq "0" ]; then
+  echo "No services found"
+  exit 1
+fi
+
+for line in "${services[@]}"; do
   IFS='/' read -r -a xs <<< "$line"
   name="${xs[0]}"
   m="${xs[1]}"
