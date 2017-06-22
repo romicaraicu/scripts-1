@@ -78,6 +78,7 @@ echo ""
 echo -e "${GRAY}Failed:${NC} ${RED}$failed_checks${NC}"
 echo -e "${GRAY}Warned:${NC} ${YELLOW}$warned_checks${NC}"
 echo -e "${GRAY}Passed:${NC} ${GREEN}$passed_checks${NC}"
+echo ""
 
 if [ "$failed_checks" -gt "0" ]; then
   exit 1
