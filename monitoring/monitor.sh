@@ -3,6 +3,7 @@
 command -v find >/dev/null 2>&1 || { echo >&2 "[find] is required, but not installed.  Aborting."; exit 1; }
 command -v printf >/dev/null 2>&1 || { echo >&2 "[printf] is required, but not installed.  Aborting."; exit 1; }
 command -v notify-send >/dev/null 2>&1 || { echo >&2 "[notify-send] is required, but not installed.  Aborting."; exit 1; }
+command -v date >/dev/null 2>&1 || { echo >&2 "[date] is required, but not installed.  Aborting."; exit 1; }
 
 FLAG=$1
 ROOT="$(dirname "$(readlink -f "$0")")"
@@ -65,6 +66,21 @@ function show_log () {
   printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" | vim -g -
 }
 
+function dump_history_log () {
+  mkdir -p "$ROOT/logs" > /dev/null
+  dump=0
+  if [ "$failed" -gt "0" ]; then
+    filename="$ROOT/logs/$(date +%Y%m%d-%H%M%S)-failed.log"
+    dump=1
+  elif [ "$warned" -gt "0" ]; then
+    filename="$ROOT/logs/$(date +%Y%m%d-%H%M%S)-warned.log"
+    dump=1
+  fi
+  if [ "$dump" -eq "1" ]; then
+    printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" > $filename
+  fi
+}
+
 ( flock -x 200
 if [ "$FLAG" == "-n" ]; then
   if [ "$failed" -gt "0" ]; then
@@ -81,5 +97,6 @@ else
   echo "<click>$ROOT/monitor.sh -n</click>"
   echo "<tool>Failed: $failed; Warned: $warned; Passed: $passed</tool>"
   echo "<img>$ROOT/icons/$icon$IMAGE_SIZE.png</img>"
+  $(dump_history_log)
 fi
 ) 200> "$LOCK"
