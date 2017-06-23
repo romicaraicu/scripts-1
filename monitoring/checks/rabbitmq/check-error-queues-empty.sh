@@ -40,7 +40,7 @@ for queue in "${QUEUES[@]}"; do
     IFS='=' read -r -a xs <<< "$queue"
     queue="${xs[0]}"
     n="${xs[1]}"
-    if [ "$n" -gt "0" ]; then
+    if [ "${n:=0}" -gt "0" ]; then
       echo "Error queue [$queue] has some messages: $n"
       errors=$(($errors + 1))
     fi
