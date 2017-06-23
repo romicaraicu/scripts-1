@@ -30,7 +30,7 @@ for line in "${services[@]}"; do
   n="${xs[2]}"
   if [ "$n" -ne "$m" ]; then
     echo "$name ($m / $n)"
-    $failing_services=$(($failing_services + 1))
+    failing_services=$(($failing_services + 1))
   fi
 done
 
