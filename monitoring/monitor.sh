@@ -56,7 +56,7 @@ output=$(cat $CHECKS_OUTPUT 2> /dev/null)
 passed=$(cat $PASSED_OUTPUT 2> /dev/null)
 failed=$(cat $FAILED_OUTPUT 2> /dev/null)
 warned=$(cat $WARNED_OUTPUT 2> /dev/null)
-icon=$(if [ "$failed" -gt "0" ]; then echo "sick"; elif [ "$warned" -gt "0" ]; then echo "dizzy"; else echo "healthy"; fi)
+icon=$(if [ "${failed:=0}" -gt "0" ]; then echo "sick"; elif [ "${warned:=0}" -gt "0" ]; then echo "dizzy"; else echo "healthy"; fi)
 
 function xnotify () {
   notify-send -t $NOTIFY_TIME -i "$ROOT/icons/$icon.png" "$1" "$2"
@@ -67,13 +67,14 @@ function show_log () {
 }
 
 function dump_history_log () {
-  mkdir -p "$ROOT/logs" > /dev/null
   dump=0
   if [ "$failed" -gt "0" ]; then
-    filename="$ROOT/logs/$(date +%Y%m%d-%H%M%S)-failed.log"
+    mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
+    filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-failed.log"
     dump=1
   elif [ "$warned" -gt "0" ]; then
-    filename="$ROOT/logs/$(date +%Y%m%d-%H%M%S)-warned.log"
+    mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
+    filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-warned.log"
     dump=1
   fi
   if [ "$dump" -eq "1" ]; then
