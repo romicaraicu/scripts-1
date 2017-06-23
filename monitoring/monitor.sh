@@ -62,8 +62,8 @@ function xnotify () {
   notify-send -t $NOTIFY_TIME -i "$ROOT/icons/$icon.png" "$1" "$2"
 }
 
-function show_log () {
-  printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" | vim -g -
+function start_watch_terminal () {
+  ($ROOT/terminal.sh "watch -c \"$ROOT/test.sh\"" &)
 }
 
 function dump_history_log () {
@@ -72,10 +72,10 @@ function dump_history_log () {
     mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
     filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-failed.log"
     dump=1
-  elif [ "$warned" -gt "0" ]; then
-    mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
-    filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-warned.log"
-    dump=1
+  # elif [ "$warned" -gt "0" ]; then
+  #   mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
+  #   filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-warned.log"
+  #   dump=1
   fi
   if [ "$dump" -eq "1" ]; then
     printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" > $filename
@@ -86,13 +86,12 @@ function dump_history_log () {
 if [ "$FLAG" == "-n" ]; then
   if [ "$failed" -gt "0" ]; then
     xnotify "Sick" "System has some failing checks"
-    $(show_log)
   elif [ "$warned" -gt "0" ]; then
     xnotify "Dizzy" "System has some warning checks"
-    $(show_log)
   else
     xnotify "Healthy" "System seams to be fully operational"
   fi
+  $(start_watch_terminal)
 else
   $(run_checks)
   echo "<click>$ROOT/monitor.sh -n</click>"
