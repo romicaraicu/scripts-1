@@ -17,11 +17,7 @@ if [ -z "$INPUT" ]; then
 fi
 
 function trim_quotes () {
-  line=$1
-  if [ "$line" != "null" ]; then
-    line=${line:1:$((${#line} - 2))}
-  fi
-  echo $line
+  echo $1 | sed 's/^\"//' | sed 's/\"$//'
 }
 
 export DOCKER_HOST="${INPUT[0]}"

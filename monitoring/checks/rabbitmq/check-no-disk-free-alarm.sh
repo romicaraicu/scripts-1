@@ -30,31 +30,36 @@ if [ ! "$rc" -eq "0" ]; then
   exit 1
 fi
 
-NODES=($(echo $result | jq '.[] | .name'))
+NODES=($(echo $result | \
+  jq -c '.[] | "!", .name, .disk_free_alarm, .disk_free, .disk_free_limit' | \
+  sed ':a;N;$!ba;s/\n/ /g' | \
+  sed 's/ /=/g' | \
+  sed 's/^\"\!\"=//g' | \
+  sed 's/=\"\!\"=/\n/g'))
+
+# Example output:
+# "rabbit@rabbit-1"=false=105953184=3281149952
+# "rabbit@rabbit-2"=false=1522663272=3281149952
+# "rabbit@rabbit-3"=false=1377115576=3281149952
 
 if [ "${#NODES}" -eq "0" ]; then
   echo "No nodes found"
   exit 1
 fi
 
-failing_nodes=0
-for node in "${NODES[@]}"; do
-  node=$(trim_quotes $node)
-  result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $CREDS "$ADDRESS/api/healthchecks/node/$node")
-  rc=$?
-  if [ ! "$rc" -eq "0" ]; then
-    echo "Server seams to be offline"
-    exit 1
-  fi
-  xs=($(echo $result | jq '.status, .reason'))
-  status="${xs[0]}"
-  reason="${xs[@]:1}"
-  if [ "$status" != "\"ok\"" ]; then
-    echo "Node [$node] failing: $reason"
-    failing_nodes=$((failing_nodes + 1))
+alarm_detected=0
+for line in "${NODES[@]}"; do
+  IFS='=' read -r -a xs <<< "$line"
+  node=$(trim_quotes "${xs[0]}")
+  alarm="${xs[1]}"
+  free="${xs[2]}"
+  limit="${xs[3]}"
+  if [ "$alarm" != "false" ]; then
+    alarm_detected=1
+    echo "Node [$node] has disk free alarm (free / limit): $free / $limit"
   fi
 done
 
-if [ "$failing_nodes" -gt "0" ]; then
+if [ "$alarm_detected" -eq "1" ]; then
   exit 1
 fi

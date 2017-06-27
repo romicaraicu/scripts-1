@@ -3,6 +3,8 @@
 command -v find >/dev/null 2>&1 || { echo >&2 "[find] is required, but not installed.  Aborting."; exit 1; }
 command -v printf >/dev/null 2>&1 || { echo >&2 "[printf] is required, but not installed.  Aborting."; exit 1; }
 
+SHOW_PASSED=0
+
 ROOT="$(dirname "$(readlink -f "$0")")"
 
 RED='\033[1;31m'
@@ -59,8 +61,10 @@ for check in "${checks[@]}"; do
   output=$(echo "${output[0]}" | sed ':a;N;$!ba;s/\n/|/g')
   if [ "$rc" -eq "0" ]; then
     passed_checks=$(($passed_checks + 1))
-    format_passed "${check:$offset}"
-    format_duration $duration
+    if [ "$SHOW_PASSED" -eq "1" ]; then
+      format_passed "${check:$offset}"
+      format_duration $duration
+    fi
   elif [ "$rc" -eq "1" ]; then
     failed_checks=$(($failed_checks + 1))
     format_failed "${check:$offset}"
