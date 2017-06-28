@@ -5,15 +5,14 @@ command -v awk >/dev/null 2>&1 || { echo >&2 "[awk] is required, but not install
 
 ROOT="$(dirname "$(readlink -f "$0")")"
 NAME=$(basename "$0")
-INPUT_FILE="$ROOT/${NAME%.*}.input"
-INPUT=($(cat $INPUT_FILE 2> /dev/null))
+DOCKER_INPUT=($(cat "$ROOT/../../../.docker" 2> /dev/null))
 
-if [ -z "$INPUT" ]; then
-  echo "Configuration for check is not set"
+if [ -z "$DOCKER_INPUT" ]; then
+  echo "Docker configuration for check is not set (.docker)"
   exit 1
 fi
 
-export DOCKER_HOST="${INPUT[0]}"
+export DOCKER_HOST="${DOCKER_INPUT[0]}"
 
 failing_services=0
 services=($(docker service ls | grep -v '^ID' | awk '{print $2"/"$4}'))

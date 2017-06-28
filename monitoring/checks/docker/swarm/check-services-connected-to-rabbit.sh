@@ -8,6 +8,8 @@ command -v sed >/dev/null 2>&1 || { echo >&2 "[sed] is required, but not install
 
 ROOT="$(dirname "$(readlink -f "$0")")"
 NAME=$(basename "$0")
+DOCKER_INPUT=($(cat "$ROOT/../../../.docker" 2> /dev/null))
+RABBITMQ_INPUT=($(cat "$ROOT/../../../.rabbitmq" 2> /dev/null))
 INPUT_FILE="$ROOT/${NAME%.*}.input"
 INPUT=($(cat $INPUT_FILE 2> /dev/null))
 
@@ -16,14 +18,24 @@ if [ -z "$INPUT" ]; then
   exit 1
 fi
 
+if [ -z "$DOCKER_INPUT" ]; then
+  echo "Docker configuration for check is not set (.docker)"
+  exit 1
+fi
+
+if [ -z "$RABBITMQ_INPUT" ]; then
+  echo "RabbitMQ configuration for check is not set (.rabbitmq)"
+  exit 1
+fi
+
 function trim_quotes () {
   echo $1 | sed 's/^\"//' | sed 's/\"$//'
 }
 
-export DOCKER_HOST="${INPUT[0]}"
-RABBITMQ_ADDRESS="${INPUT[1]}"
-RABBITMQ_CREDS="${INPUT[2]}"
-FILTER=$(trim_quotes ${INPUT[3]})
+export DOCKER_HOST="${DOCKER_INPUT[0]}"
+RABBITMQ_ADDRESS="${RABBITMQ_INPUT[0]}"
+RABBITMQ_CREDS="${RABBITMQ_INPUT[1]}"
+FILTER=$(trim_quotes ${INPUT[0]})
 CURL_MAX_TIME=5
 
 result=$(curl --max-time $CURL_MAX_TIME --fail --fail-early -sb -i -u $RABBITMQ_CREDS "$RABBITMQ_ADDRESS/api/connections")

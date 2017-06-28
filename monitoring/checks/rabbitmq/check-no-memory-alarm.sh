@@ -7,16 +7,15 @@ command -v sort >/dev/null 2>&1 || { echo >&2 "[sort] is required, but not insta
 
 ROOT="$(dirname "$(readlink -f "$0")")"
 NAME=$(basename "$0")
-INPUT_FILE="$ROOT/${NAME%.*}.input"
-INPUT=($(cat $INPUT_FILE 2> /dev/null))
+RABBITMQ_INPUT=($(cat "$ROOT/../../.rabbitmq" 2> /dev/null))
 
-if [ -z "$INPUT" ]; then
-  echo "Configuration for check is not set"
+if [ -z "$RABBITMQ_INPUT" ]; then
+  echo "RabbitMQ configuration for check is not set (.rabbitmq)"
   exit 1
 fi
 
-ADDRESS="${INPUT[0]}"
-CREDS="${INPUT[1]}"
+ADDRESS="${RABBITMQ_INPUT[0]}"
+CREDS="${RABBITMQ_INPUT[1]}"
 CURL_MAX_TIME=5
 
 function trim_quotes () {
