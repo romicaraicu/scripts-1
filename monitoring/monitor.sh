@@ -5,6 +5,8 @@ command -v printf >/dev/null 2>&1 || { echo >&2 "[printf] is required, but not i
 command -v notify-send >/dev/null 2>&1 || { echo >&2 "[notify-send] is required, but not installed.  Aborting."; exit 1; }
 command -v date >/dev/null 2>&1 || { echo >&2 "[date] is required, but not installed.  Aborting."; exit 1; }
 
+ENABLE_FILE_LOGGING=0
+
 FLAG=$1
 ROOT="$(dirname "$(readlink -f "$0")")"
 LOCK="$ROOT/lock"
@@ -67,18 +69,20 @@ function start_watch_terminal () {
 }
 
 function dump_history_log () {
-  dump=0
-  if [ "$failed" -gt "0" ]; then
-    mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
-    filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-failed.log"
-    dump=1
-  # elif [ "$warned" -gt "0" ]; then
-  #   mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
-  #   filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-warned.log"
-  #   dump=1
-  fi
-  if [ "$dump" -eq "1" ]; then
-    printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" > $filename
+  if [ "$ENABLE_FILE_LOGGING" -eq "1" ]; then
+    dump=0
+    if [ "$failed" -gt "0" ]; then
+      mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
+      filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-failed.log"
+      dump=1
+    # elif [ "$warned" -gt "0" ]; then
+    #   mkdir -p "$ROOT/logs/$(date +%Y-%m-%d)" > /dev/null
+    #   filename="$ROOT/logs/$(date +%Y-%m-%d)/$(date +%H%M%S)-warned.log"
+    #   dump=1
+    fi
+    if [ "$dump" -eq "1" ]; then
+      printf "Failed: $failed\nWarned: $warned\nPassed: $passed\n\n$output" > $filename
+    fi
   fi
 }
 
