@@ -9,4 +9,4 @@ fi
 
 cmd=$1
 
-xfce4-terminal --geometry 93x40 -e "${cmd:-top}"
+xfce4-terminal --geometry 100x40 -e "${cmd:-top}"
