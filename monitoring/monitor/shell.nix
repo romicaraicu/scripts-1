@@ -4,7 +4,8 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, base, stdenv
+  f = { mkDerivation, base, stdenv, filepath, filemanip
+      , process, aeson, text, scotty
       , ghc-mod, hlint, hoogle, hindent, stylish-haskell
       }:
       mkDerivation {
@@ -13,7 +14,7 @@ let
         src = ./.;
         isLibrary = false;
         isExecutable = true;
-        executableHaskellDepends = [ base ];
+        executableHaskellDepends = [ base filepath filemanip process aeson text scotty ];
         buildDepends = [ ghc-mod hlint hoogle hindent stylish-haskell ];
         homepage = "https://github.com/kuznero/scripts/monitoring/monitor#README";
         description = "Monitoring aggregator";

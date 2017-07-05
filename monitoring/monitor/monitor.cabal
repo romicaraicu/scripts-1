@@ -4,13 +4,13 @@
 name:                monitor
 version:             0.0.1.0
 synopsis:            Monitoring aggregator
--- description:         
+description:         Monitoring aggregator
 homepage:            https://github.com/kuznero/scripts/monitoring/monitor#README
 license:             MIT
 license-file:        LICENSE
 author:              Roman Kuznetsov
 maintainer:          roman@kuznero.com
--- copyright:           
+-- copyright:
 category:            System
 build-type:          Simple
 extra-source-files:  ChangeLog.md
@@ -18,8 +18,14 @@ cabal-version:       >=1.10
 
 executable monitor
   main-is:             Main.hs
-  -- other-modules:       
-  -- other-extensions:    
+  -- other-modules:
+  -- other-extensions:
   build-depends:       base >=4.9 && <4.10
+                     , filepath >= 1.4.1.1 && < 1.5
+                     , filemanip >= 0.3.6.3 && < 0.4
+                     , process >= 1.4.3.0 && < 1.5
+                     , aeson >= 1.0.2.1 && < 1.1
+                     , text >= 1.2.2.1 && < 1.3
+                     , scotty >= 0.11.0 && < 0.12
   hs-source-dirs:      src
   default-language:    Haskell2010
