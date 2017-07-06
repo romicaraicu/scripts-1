@@ -1,6 +1,6 @@
 module Opts
   ( Opts(..)
-  , parse
+  , parseOpts
   ) where
 
 import Data.Semigroup ((<>))
@@ -8,7 +8,8 @@ import Options.Applicative
 
 data Opts = Opts
   { optsMonitor :: Bool
-  , optsPeriod :: Maybe Int
+  , optsMonitorPort :: Int
+  , optsCheckPeriod :: Int
   , optsPath :: FilePath
   }
 
@@ -19,11 +20,17 @@ optsParser = Opts
       <> short 'm'
       <> help "Start monitoring with RESTful API server" )
   <*> option auto
+      (  long "port"
+      <> showDefault
+      <> value 3000
+      <> metavar "MONITOR_PORT"
+      <> help "Defines port number RESTful API server is accepting connections on" )
+  <*> option auto
       (  long "period"
       <> showDefault
-      <> value (Just 30)
-      <> metavar "PERIOD_SECONDS"
-      <> help "Defines period with which scripts are getting executed" )
+      <> value 30
+      <> metavar "CHECK_PERIOD_SECONDS"
+      <> help "Defines check period with which scripts are getting executed" )
   <*> strOption
       (  long "path"
       <> short 'p'
@@ -33,7 +40,7 @@ optsParser = Opts
 optsInfo :: ParserInfo Opts
 optsInfo = info (optsParser <**> helper)
   (  fullDesc
-  <> progDesc "Runs a set of scripts and serves results either to stdout or as RESTful API with --monitor switch" )
+  <> progDesc "Runs a set of scripts and aggregates results" )
 
-parse :: IO Opts
-parse = execParser optsInfo
+parseOpts :: IO Opts
+parseOpts = execParser optsInfo
