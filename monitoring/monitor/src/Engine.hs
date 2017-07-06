@@ -4,12 +4,14 @@
 module Engine
   ( detectScripts
   , executeScripts
-  , formatResult
+  , formatReport
+  , reportsToExitCode
   ) where
 
 import Control.Concurrent (forkIO)
 import Control.Concurrent.MVar
 import Control.Monad (forM_, void)
+import Data.List (elem)
 import Data.Text.Lazy (pack)
 import Models
 import System.Exit (ExitCode(..))
@@ -48,8 +50,8 @@ executeScripts scripts = do
       var <- newEmptyMVar :: IO (MVar ExecutionResult)
       return (path, var)
 
-formatResult :: Report -> String
-formatResult Report {..} = do
+formatReport :: Report -> String
+formatReport Report {..} = do
   let (rc, out, err) = result
   case rc of
     Ok -> "[ OK] " ++ path ++ "\n"
@@ -61,3 +63,16 @@ formatResult Report {..} = do
       | null err -> "[ERR] " ++ path ++ "\n" ++ out
       | null out -> "[ERR] " ++ path ++ "\n" ++ err
       | otherwise -> "[ERR] " ++ path
+
+reportsToExitCode :: [Report] -> ExitCode
+reportsToExitCode reports = do
+  let xs = map (\ Report {..} -> fst3 result) reports
+      hasErrors = Error `elem` xs
+      hasWarnings = Warning `elem` xs
+  case (hasErrors, hasWarnings) of
+    (True, _) -> ExitFailure 1
+    (False, True) -> ExitFailure 2
+    (False, False) -> ExitSuccess
+  where
+    fst3 :: (a, b, c) -> a
+    fst3 (x, _, _) = x

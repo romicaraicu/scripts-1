@@ -13,7 +13,7 @@ data ResultCode
   = Ok
   | Warning
   | Error
-  deriving (Show, Generic)
+  deriving (Eq, Show, Generic)
 
 instance ToJSON ResultCode
 

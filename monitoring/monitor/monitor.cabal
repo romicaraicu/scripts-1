@@ -20,6 +20,7 @@ executable monitor
   main-is:             Main.hs
   other-modules:       Models
                      , Engine
+                     , Opts
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
                      , optparse-applicative >= 0.13.2.0 && < 0.14
