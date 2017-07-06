@@ -18,9 +18,11 @@ cabal-version:       >=1.10
 
 executable monitor
   main-is:             Main.hs
-  -- other-modules:
+  other-modules:       Models
+                     , Engine
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
+                     , optparse-applicative >= 0.13.2.0 && < 0.14
                      , filepath >= 1.4.1.1 && < 1.5
                      , filemanip >= 0.3.6.3 && < 0.4
                      , process >= 1.4.3.0 && < 1.5
