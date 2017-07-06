@@ -19,22 +19,22 @@ import System.FilePath.Find ((~~?), always, fileName, find)
 import System.Process (readProcessWithExitCode)
 
 exitToResultCode :: ExitCode -> ResultCode
-exitToResultCode ExitSuccess = Ok
+exitToResultCode ExitSuccess = OK
 exitToResultCode (ExitFailure 2) = Warning
 exitToResultCode (ExitFailure _) = Error
 
 detectScripts :: FilePath -> IO [FilePath]
 detectScripts = find always (fileName ~~? "*.sh")
 
-runScript :: (FilePath, MVar ExecutionResult) -> IO ()
+runScript :: (FilePath, MVar Result) -> IO ()
 runScript (path, var) = do
   (rc, out, err) <- readProcessWithExitCode path [] ""
-  putMVar var (exitToResultCode rc, out, err)
+  putMVar var $ Result (exitToResultCode rc) out err
 
-startScript :: (FilePath, MVar ExecutionResult) -> IO ()
+startScript :: (FilePath, MVar Result) -> IO ()
 startScript = void . forkIO . runScript
 
-waitScriptFinish :: (FilePath, MVar ExecutionResult) -> IO Report
+waitScriptFinish :: (FilePath, MVar Result) -> IO Report
 waitScriptFinish (path, var) = do
   result <- takeMVar var
   return $ Report path result
@@ -45,28 +45,28 @@ executeScripts scripts = do
   mapM_ startScript xs
   mapM waitScriptFinish xs
   where
-    initEmptyMVar :: FilePath -> IO (FilePath, MVar ExecutionResult)
+    initEmptyMVar :: FilePath -> IO (FilePath, MVar Result)
     initEmptyMVar path = do
-      var <- newEmptyMVar :: IO (MVar ExecutionResult)
+      var <- newEmptyMVar :: IO (MVar Result)
       return (path, var)
 
 formatReport :: Report -> String
 formatReport Report {..} = do
-  let (rc, out, err) = result
-  case rc of
-    Ok -> "[ OK] " ++ path ++ "\n"
+  let Result {..} = result
+  case resultCode of
+    OK -> "[ OK] " ++ path ++ "\n"
     Warning
-      | null err -> "[WRN] " ++ path ++ "\n" ++ out
-      | null out -> "[WRN] " ++ path ++ "\n" ++ err
+      | null stdError -> "[WRN] " ++ path ++ "\n" ++ stdOutput
+      | null stdOutput -> "[WRN] " ++ path ++ "\n" ++ stdError
       | otherwise -> "[WRN] " ++ path
     Error
-      | null err -> "[ERR] " ++ path ++ "\n" ++ out
-      | null out -> "[ERR] " ++ path ++ "\n" ++ err
+      | null stdError -> "[ERR] " ++ path ++ "\n" ++ stdOutput
+      | null stdOutput -> "[ERR] " ++ path ++ "\n" ++ stdError
       | otherwise -> "[ERR] " ++ path
 
 reportsToExitCode :: [Report] -> ExitCode
 reportsToExitCode reports = do
-  let xs = map (\ Report {..} -> fst3 result) reports
+  let xs = map (\ Report {..} -> code result) reports
       hasErrors = Error `elem` xs
       hasWarnings = Warning `elem` xs
   case (hasErrors, hasWarnings) of
@@ -74,5 +74,5 @@ reportsToExitCode reports = do
     (False, True) -> ExitFailure 2
     (False, False) -> ExitSuccess
   where
-    fst3 :: (a, b, c) -> a
-    fst3 (x, _, _) = x
+    code :: Result -> ResultCode
+    code Result {..} = resultCode
