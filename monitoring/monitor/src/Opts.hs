@@ -9,7 +9,7 @@ import Options.Applicative
 data Opts = Opts
   { optsMonitor :: Bool
   , optsMonitorPort :: Int
-  , optsCheckPeriod :: Int
+  , optsDelayBetweenChecks :: Int
   , optsPath :: FilePath
   }
 
@@ -26,11 +26,11 @@ optsParser = Opts
       <> metavar "MONITOR_PORT"
       <> help "Defines port number RESTful API server is accepting connections on" )
   <*> option auto
-      (  long "period"
+      (  long "delay"
       <> showDefault
       <> value 30
-      <> metavar "CHECK_PERIOD_SECONDS"
-      <> help "Defines check period with which scripts are getting executed" )
+      <> metavar "DELAY_BETWEEN_CHECKS_SECONDS"
+      <> help "Defines delay between checks in seconds" )
   <*> strOption
       (  long "path"
       <> short 'p'
