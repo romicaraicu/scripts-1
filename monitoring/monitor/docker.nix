@@ -5,12 +5,14 @@ let
   main =
     haskell.lib.dontCheck
       (haskell.lib.justStaticExecutables (import ./default.nix {}));
+  checks = (import ./checks.nix) { inherit stdenv; };
 in
   dockerTools.buildImage {
     name = "monitor";
     tag = "latest";
     contents = [
       main
+      checks
       bash
       coreutils
       jq
