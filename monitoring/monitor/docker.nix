@@ -4,8 +4,7 @@ with pkgs;
 let
   main =
     haskell.lib.dontCheck
-      (haskell.lib.justStaticExecutables
-        (haskellPackages.callPackage (import ./default.nix {})));
+      (haskell.lib.justStaticExecutables (import ./default.nix {}));
 in
   dockerTools.buildImage {
     name = "monitor";
