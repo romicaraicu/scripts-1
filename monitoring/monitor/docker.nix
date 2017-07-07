@@ -1,28 +1,35 @@
 { pkgs ? import <nixpkgs> {} }:
 
 with pkgs;
-dockerTools.buildImage {
-  name = "monitor";
-  contents = [
-    (import ./default.nix {})
-    bash
-    coreutils
-    jq
-    curl
-  ];
-  runAsRoot = ''
-    #!${stdenv.shell}
-    ${dockerTools.shadowSetup}
-    mkdir /checks
-  '';
-  config = {
-    Cmd = [ "monitor" ];
-    ExposedPorts = {
-      "3000/tcp" = {};
+let
+  main =
+    haskell.lib.dontCheck
+      (haskell.lib.justStaticExecutables
+        (haskellPackages.callPackage (import ./default.nix {})));
+in
+  dockerTools.buildImage {
+    name = "monitor";
+    tag = "latest";
+    contents = [
+      main
+      bash
+      coreutils
+      jq
+      curl
+    ];
+    runAsRoot = ''
+      #!${stdenv.shell}
+      ${dockerTools.shadowSetup}
+      mkdir /checks
+    '';
+    config = {
+      Cmd = [ "${main}/bin/monitor" ];
+      ExposedPorts = {
+        "3000/tcp" = {};
+      };
+      WorkingDir = "/checks";
+      Volumes = {
+        "/checks" = {};
+      };
     };
-    WorkingDir = "/checks";
-    Volumes = {
-      "/checks" = {};
-    };
-  };
-}
+  }
