@@ -19,16 +19,21 @@ in
     runAsRoot = ''
       #!${stdenv.shell}
       ${dockerTools.shadowSetup}
-      mkdir /checks
+      mkdir -p /checks
     '';
     config = {
-      Cmd = [ "${main}/bin/monitor" ];
+      Env = [
+        "DOCKER_HOST="
+        "RABBITMQ_ADDRESS="
+        "RABBITMQ_CREDS="
+      ];
+      WorkingDir = "/checks";
       ExposedPorts = {
         "3000/tcp" = {};
       };
-      WorkingDir = "/checks";
       Volumes = {
         "/checks" = {};
       };
+      Cmd = [ "${main}/bin/monitor" ];
     };
   }
