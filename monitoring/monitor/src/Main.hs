@@ -59,5 +59,5 @@ main = do
         text $ pack $ show lastUpdated
   unless optsMonitor $ do
     reports <- detectScripts optsPath >>= executeScripts
-    forM_ reports $ putStr . formatReport
+    forM_ reports $ putStrLn . formatReport
     exitWith $ reportsToExitCode reports

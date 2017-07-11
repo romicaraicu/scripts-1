@@ -20,10 +20,6 @@ snakeIt = change ""
 snakeOptions :: AT.Options
 snakeOptions = defaultOptions { AT.fieldLabelModifier = snakeIt }
 
-type Stdout = String
-
-type Stderr = String
-
 data ResultCode
   = OK
   | Warning
@@ -37,8 +33,7 @@ instance FromJSON ResultCode
 
 data Result = Result
   { resultCode :: ResultCode
-  , stdOutput :: Stdout
-  , stdError :: Stderr
+  , output :: String
   }
   deriving (Show, Generic)
 

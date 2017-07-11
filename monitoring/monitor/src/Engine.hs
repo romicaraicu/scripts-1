@@ -18,6 +18,14 @@ import System.Exit (ExitCode(..))
 import System.FilePath.Find ((~~?), always, fileName, find)
 import System.Process (readProcessWithExitCode)
 
+mergeOutputs :: String -> String -> String
+mergeOutputs "\n" "\n" = ""
+mergeOutputs output "" = output
+mergeOutputs output "\n" = output
+mergeOutputs "" error = error
+mergeOutputs "\n" error = error
+mergeOutputs output error = output ++ "\nERROR(s):\n" ++ error
+
 exitToResultCode :: ExitCode -> ResultCode
 exitToResultCode ExitSuccess = OK
 exitToResultCode (ExitFailure 2) = Warning
@@ -29,7 +37,7 @@ detectScripts = find always (fileName ~~? "*.sh")
 runScript :: (FilePath, MVar Result) -> IO ()
 runScript (path, var) = do
   (rc, out, err) <- readProcessWithExitCode path [] ""
-  putMVar var $ Result (exitToResultCode rc) out err
+  putMVar var $ Result (exitToResultCode rc) $ mergeOutputs out err
 
 startScript :: (FilePath, MVar Result) -> IO ()
 startScript = void . forkIO . runScript
@@ -54,14 +62,12 @@ formatReport :: Report -> String
 formatReport Report {..} = do
   let Result {..} = result
   case resultCode of
-    OK -> "[ OK] " ++ path ++ "\n"
+    OK -> "[ OK] " ++ path
     Warning
-      | null stdError -> "[WRN] " ++ path ++ "\n" ++ stdOutput
-      | null stdOutput -> "[WRN] " ++ path ++ "\n" ++ stdError
+      | null output -> "[WRN] " ++ path ++ "\n" ++ output
       | otherwise -> "[WRN] " ++ path
     Error
-      | null stdError -> "[ERR] " ++ path ++ "\n" ++ stdOutput
-      | null stdOutput -> "[ERR] " ++ path ++ "\n" ++ stdError
+      | null output -> "[ERR] " ++ path ++ "\n" ++ output
       | otherwise -> "[ERR] " ++ path
 
 reportsToExitCode :: [Report] -> ExitCode
