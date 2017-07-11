@@ -17,6 +17,7 @@ in
       coreutils
       jq
       curl
+      gnugrep
       gnused
       gawk
       docker
