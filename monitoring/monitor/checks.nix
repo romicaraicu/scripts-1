@@ -3,12 +3,11 @@
 stdenv.mkDerivation {
   name = "checks";
   src = ../checks;
-  phases = [ "patchPhase" "unpackPhase" "installPhase" ];
-  patchPhase = ''
-    patchShebangs .
-  '';
+  phases = [ "unpackPhase" "installPhase" ];
   installPhase = ''
     mkdir -p $out/checks
-    cp -r ../checks/* $out/checks/
+    cp -r -v ../checks/* $out/checks/
+    patchShebangs $out/checks
+    chmod +x $out/checks/**/*.sh
   '';
 }
